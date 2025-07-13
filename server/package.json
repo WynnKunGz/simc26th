@@ -10,12 +10,17 @@
   "dependencies": {
     "@elysiajs/static": "^1.2.0",
     "@elysiajs/swagger": "^1.1.6",
+    "argon2": "^0.43.0",
     "elysia": "latest",
+    "googleapis": "^152.0.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.3",
     "uuid": "^11.0.5"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.3"
+    "@types/bun": "^1.2.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.97"
   },
   "module": "src/index.js"
 }
