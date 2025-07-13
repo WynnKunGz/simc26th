@@ -1,43 +1,34 @@
 import Elysia from "elysia";
-import UserService from "./user.service";
-import { createUserSchema, updateUserSchema } from "./user.schema";
+import userTable from "./user.table";
+import { cleanQuery } from "@/libs/mongoose/utils";
+import { findUsersSchema, updateUserSchema } from "./user.schema";
 
 const userApi = new Elysia({ prefix: "/user" })
-  .get("/", () => UserService.gets())
-  .get("/:userId", async ({ params: { userId }, error }) => {
-    const user = await UserService.getByUserId(userId);
-    if (!user) return error("Not Found");
-    return user;
-  })
-  .post(
+  .get(
     "/",
-    async ({ body, error }) => {
-      const { email } = body;
-      const duplicate = await UserService.get({ email });
-      if (duplicate) return error("Conflict");
-
-      const user = await UserService.create(body);
-      return user;
-    },
-    {
-      body: createUserSchema,
-    }
+    ({ query }) =>
+      userTable.find(cleanQuery(query)).select("-password").lean().exec(),
+    { query: findUsersSchema }
   )
-  .delete("/:userId", ({ params: { userId } }) =>
-    UserService.deleteByUserId(userId)
-  )
-  .patch(
+  .get("/:userId", async ({ error, params: { userId } }) => {
+    const user = await userTable.findById(userId).lean().exec();
+    return user ? user : error(404, "User not found.");
+  })
+  .put(
     "/:userId",
-    async ({ body, params: { userId }, error }) => {
-      const available = await UserService.getByUserId(userId);
-      if (!available) return error("Not Found");
-
-      const user = await UserService.updateByUserId(userId, body);
-      return user;
+    async ({ body, error, params: { userId } }) => {
+      const user = await userTable.findByIdAndUpdate(userId, body, {
+        new: true,
+      });
+      return user ? user : error(400, "Failed to update user.");
     },
-    {
-      body: updateUserSchema,
-    }
-  );
+    { body: updateUserSchema }
+  )
+  .delete("/:userId", async ({ error, params: { userId } }) => {
+    const user = await userTable.findByIdAndDelete(userId).lean().exec();
+    return user
+      ? "Delete user successfully."
+      : error(400, "Failed to delete user.");
+  });
 
 export default userApi;

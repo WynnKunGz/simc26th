@@ -1,24 +1,28 @@
 import { model, Schema } from "mongoose";
-import { v4 as uuidv4 } from "uuid";
 
-const userTable = model("user", new Schema({
-  userId: {
-    type: String,
-    default: uuidv4
-  },
-  name: {
-    type: String,
-    required: true
-  },
-  age: {
-    type: Number,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  }
-}));
+const userTable = model(
+  "user",
+  new Schema({
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+      default: "applicant",
+    },
+  })
+);
 
 export default userTable;
